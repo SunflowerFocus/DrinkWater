@@ -49,7 +49,7 @@ menu = (
 )
 
 # 创建图标对象
-image = Image.open("icon_2.png")  # 打开并读取图片文件
+image = Image.open("icon.png")  # 打开并读取图片文件
 icon = pystray.Icon("name", image, "鼠标移动到\n托盘图标上\n展示内容", menu)  # 创建图标对象并绑定菜单项
 # 显示图标并等待用户操作
 icon.run()
