@@ -8,3 +8,4 @@ vendor
 /.vscode
 /.phplint.cache
 /.phpunit.cache
+__pycache__
