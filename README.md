@@ -10,3 +10,5 @@ pyinstaller --noconsole -F -w --onefile .\main.py --name water
 -i icon.ico
 ```
 
+###### 添加资源
+--add-data "icon.png;."
