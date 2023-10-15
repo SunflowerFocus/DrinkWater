@@ -9,3 +9,5 @@ vendor
 /.phplint.cache
 /.phpunit.cache
 __pycache__
+build
+*.spec

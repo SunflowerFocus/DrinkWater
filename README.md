@@ -1,3 +1,12 @@
-# PythonWater
 
-基于Windows的定时喝水提醒
+#### Build 执行
+
+```shell
+pyinstaller --noconsole -F -w --onefile .\main.py --name water
+```
+
+##### 添加图标
+```shell
+-i icon.ico
+```
+
