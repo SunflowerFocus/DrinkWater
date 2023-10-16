@@ -2,15 +2,15 @@
 #### Build 执行
 
 ```shell
-pyinstaller --noconsole -F -w --onefile .\main.py --name water
+pyinstaller -i .\images\icon.ico  -F -w --onefile --add-data "images/*;images" .\DrinkWater.py --name DrinkWater
 ```
 
-##### 添加图标
 ```shell
--i icon.ico
+pyinstaller DrinkWater.spec
 ```
 
-###### 添加资源
+##### Option
 ```shell
---add-data "icon.png;."
+-i .\images\icon.ico
+--add-data "images/*;images"
 ```
