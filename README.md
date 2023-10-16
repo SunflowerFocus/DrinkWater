@@ -2,17 +2,16 @@
 #### Build 执行
 
 ```shell
-pyinstaller -i .\images\icon.ico  --onefile Water.py --name WATER
-pyinstaller -i .\images\icon.ico  --onefile RUN.py --name RUN
+pyinstaller -i .\images\icon.ico  --onefile Water.py --name Water
+pyinstaller -i .\images\icon.ico  --onefile Run.py --name Run
 ```
 
 ```shell
-pyinstaller Water.spec
+pyinstaller App.spec
+pyinstaller Run.spec
 ```
 
 ##### Option
 ```shell
---noconsole
--i .\images\icon.ico
---add-data "images/*;images"
+--noconsole -i .\images\icon.ico --add-data "images/*;images"
 ```

@@ -1,11 +1,10 @@
-import time
 import tkinter as tk
 import tkinter.simpledialog
-import threading
 import pystray
+import threading
+from tkinter import messagebox
 from PIL import Image
 from functools import partial
-from tkinter import messagebox
 
 
 def convert_format_second(second):
