@@ -86,7 +86,6 @@ class GUI:
         )
         if minute_value:
             self.second = minute_value * 60
-            self.second = minute_value
         if self.second > 0:
             self.refresh_setting_text()
             self.refresh_label_text()
