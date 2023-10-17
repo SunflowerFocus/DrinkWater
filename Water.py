@@ -40,6 +40,7 @@ class GUI:
         x, y = self.adaption_window_center(600, 200)
         self.root.geometry(f"+{x}+{y}")
         self.root.resizable(False, False)
+        self.root.iconbitmap("images/icon.ico")
         self.root.protocol('WM_DELETE_WINDOW', self.hide_window)
         self.root.attributes('-topmost', 1)
         self.interface()
