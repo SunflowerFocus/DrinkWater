@@ -79,9 +79,9 @@ class GUI:
             title='喝水',
             prompt='间隔(分钟):',
             parent=self.root,
-            initialvalue=5,
+            initialvalue=60,
             minvalue=1,
-            maxvalue=180
+            maxvalue=480
         )
         if minute_value:
             self.second = minute_value * 60

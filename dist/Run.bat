@@ -1,3 +1,3 @@
 @echo off
-RunHiddenConsole.exe WATER.exe
+RunHiddenConsole.exe Water.exe
 exit
