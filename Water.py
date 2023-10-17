@@ -86,6 +86,7 @@ class GUI:
         )
         if minute_value:
             self.second = minute_value * 60
+            self.second = minute_value
         if self.second > 0:
             self.refresh_setting_text()
             self.refresh_label_text()
@@ -108,6 +109,7 @@ class GUI:
         x, y = self.adaption_window_center(1280, 460)
         reminder_window.geometry(f"+{x}+{y}")
         reminder_window.resizable(False, False)
+        reminder_window.iconbitmap("images/icon.ico")
         reminder_window.grab_set()
         reminder_window.focus_force()
         reminder_window.attributes('-topmost', 1)  # 设置为最前面
