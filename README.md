@@ -7,7 +7,7 @@ pyinstaller -i .\images\icon.ico  --onefile Run.py --name Run
 ```
 
 ```shell
-pyinstaller App.spec
+pyinstaller Water.spec
 pyinstaller Run.spec
 ```
 
