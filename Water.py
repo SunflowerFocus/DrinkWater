@@ -1,25 +1,9 @@
-import tkinter as tk
-import tkinter.simpledialog
 import pystray
 import threading
-from tkinter import messagebox
 from PIL import Image
 from functools import partial
-
-
-def convert_format_second(second):
-    remaining_seconds = second % 60
-    minutes = second // 60
-    hours = minutes // 60
-    remaining_minutes = minutes % 60
-
-    time_str = f"{hours:02d}:{remaining_minutes:02d}:{remaining_seconds:02d}"
-
-    return time_str
-
-
-def show_popup():
-    messagebox.showinfo("喝水", "喝水提醒")
+from App import *
+from Function import *
 
 
 class GUI:
@@ -28,46 +12,45 @@ class GUI:
     second: int = 0
     setting_btn = None
     start_btn = None
+    stop_btn = None
     reset_btn = None
     second_label = None
     screen_width = 0
     screen_height = 0
+    reminder_window = None
+    flag = True
+    after_id = None
 
     def __init__(self, title):
-        self.root = tk.Tk()
-        self.root.title(title)
-        self.root.geometry("600x200")
-        x, y = self.adaption_window_center(600, 200)
-        self.root.geometry(f"+{x}+{y}")
-        self.root.resizable(False, False)
-        self.root.iconbitmap("images/icon.ico")
+        self.root = create_water_gui(title)
         self.root.protocol('WM_DELETE_WINDOW', self.hide_window)
-        self.root.attributes('-topmost', 1)
-        self.interface()
+        self.create_gui_content()
         self.create_systray_icon()
 
-    def adaption_window_center(self, width: int, height: int):
-        self.screen_width = self.root.winfo_screenwidth()
-        self.screen_height = self.root.winfo_screenheight()
-        return (self.screen_width - width) // 2, (self.screen_height - height) // 2
-
     def create_systray_icon(self):
-        menu = (
+        self.icon = pystray.Icon("icon", Image.open("images/icon.png"), "喝水提醒", (
             pystray.MenuItem('显示面板', self.show_window, default=True),
-            pystray.Menu.SEPARATOR,  # 在系统托盘菜单中添加分隔线
+            pystray.Menu.SEPARATOR,
+            pystray.MenuItem('暂停', self.show_window),
+            pystray.MenuItem('重置', self.show_window),
+            pystray.Menu.SEPARATOR,
             pystray.MenuItem('退出', self.quit_window)
-        )
-        self.icon = pystray.Icon("icon", Image.open("images/icon.png"), "喝水提醒", menu)
+        ))
 
-    def interface(self):
+    def create_gui_content(self):
         frame_btn = tk.Frame(self.root)
         frame_btn.pack(side=tk.TOP)
-        self.setting_btn = tk.Button(frame_btn, text="设置间隔时间", command=lambda: self.setting_run(), width=18,
-                                     height=2)
+        self.setting_btn = tk.Button(frame_btn, text="设置间隔时间", width=18,height=2)
+        self.setting_btn.config(command=lambda: self.setting_run())
         self.setting_btn.pack(side=tk.LEFT, padx=20, pady=20)
+
         self.start_btn = tk.Button(frame_btn, text="开始", command=lambda: self.start_run(), width=18, height=2)
         self.start_btn.pack(side=tk.LEFT, padx=20, pady=20)
-        self.reset_btn = tk.Button(frame_btn, text="重置", command=lambda: self.reset_run(), width=18, height=2)
+
+        self.stop_btn = tk.Button(frame_btn, text="暂停", command=lambda: self.stop_run(), width=18, height=2, state='disabled')
+        self.stop_btn.pack(side=tk.LEFT, padx=20, pady=20)
+
+        self.reset_btn = tk.Button(frame_btn, text="重置", command=lambda: self.reset_run(), width=18, height=2, state='disabled')
         self.reset_btn.pack(side=tk.LEFT, padx=20, pady=20)
 
         frame_label = tk.Frame(self.root)
@@ -75,52 +58,43 @@ class GUI:
         self.second_label = tk.Label(frame_label, text="00:00:00", font=("Arial", 48))
         self.second_label.pack()
 
-    def setting_run(self):
-        minute_value = tk.simpledialog.askinteger(
-            title='喝水',
-            prompt='间隔(分钟):',
-            parent=self.root,
-            initialvalue=60,
-            minvalue=1,
-            maxvalue=480
-        )
-        if minute_value:
-            self.second = minute_value * 60
-        if self.second > 0:
-            self.refresh_setting_text()
-            self.refresh_label_text()
-
     def update_label_text(self):
-        if self.original_second == 0 and self.second == 0:
-            return
-        if self.second >= 1:
+        if self.second >= 1 and self.flag:
             self.second -= 1
-            self.refresh_setting_text()
-            self.refresh_label_text()
-            self.root.after(1000, self.update_label_text)
+            refresh_second_text(self)
+            self.after_id = self.root.after(1000, self.update_label_text)
         else:
             self.show_popup()
 
     def show_popup(self):
-        reminder_window = tkinter.Toplevel(self.root)
-        reminder_window.title("喝水提醒")
-        reminder_window.geometry("1280x460")
-        x, y = self.adaption_window_center(1280, 460)
-        reminder_window.geometry(f"+{x}+{y}")
-        reminder_window.resizable(False, False)
-        reminder_window.iconbitmap("images/icon.ico")
-        reminder_window.grab_set()
-        reminder_window.focus_force()
-        reminder_window.attributes('-topmost', 1)  # 设置为最前面
+        self.reminder_window = create_reminder_window(self.root)
 
-        tip_text = tkinter.Label(reminder_window, text="记得多喝水，保持身体健康")
-        tip_text.config(font=("Arial", 68))
-        tip_text.pack(pady=160)
-        tip_text1 = tkinter.Label(reminder_window, text="关闭当前窗口继续提醒")
-        tip_text1.pack()
+        menubar = tk.Menu(self.reminder_window)
+        file_menu = tk.Menu(menubar, tearoff=False)
+        menubar.add_cascade(label='选项', menu=file_menu, command=self.reset_show_popup)
+        file_menu.add_command(label='重置', command=self.reset_show_popup)
+        self.reminder_window.config(menu=menubar)
 
-        reminder_window.protocol("WM_DELETE_WINDOW", partial(self.close_show_popup,
-                                                             reminder_window,
+        frame_title = tk.Frame(self.reminder_window)
+        frame_title.pack(side=tk.TOP)
+        tip_text1 = tkinter.Label(frame_title, text="记得多喝水，保持身体健康")
+        tip_text1.config(font=("Arial", 68))
+        tip_text1.pack(pady=160)
+
+        frame_btn = tk.Frame(self.reminder_window)
+        frame_btn.pack(side=tk.TOP)
+        reset_btn = tk.Button(frame_btn, text="重置", command=lambda: self.reset_run(), width=16, height=1)
+        reset_btn.pack(side=tk.LEFT, padx=5, pady=5)
+        close_btn = tk.Button(frame_btn, text="关闭", command=lambda: self.reset_run(), width=16, height=1)
+        close_btn.pack(side=tk.LEFT)
+
+        frame_end = tk.Frame(self.reminder_window)
+        frame_end.pack(side=tk.TOP)
+        tip_text2 = tkinter.Label(frame_end, text="关闭当前窗口继续提醒")
+        tip_text2.pack()
+
+        self.reminder_window.protocol("WM_DELETE_WINDOW", partial(self.close_show_popup,
+                                                             self.reminder_window,
                                                              self.original_second,
                                                              self.second)
                                  )
@@ -131,32 +105,18 @@ class GUI:
             self.second = original_second
             self.update_label_text()
 
+    def setting_run(self):
+        refresh_gui(self, 'setting')
+
     def start_run(self):
-        if self.original_second == 0 and self.second == 0:
-            return
-        self.original_second = self.second
-        self.setting_btn.config(state='disabled')
-        self.start_btn.config(state='disabled')
+        refresh_gui(self, 'start')
         self.update_label_text()
 
+    def stop_run(self):
+        refresh_gui(self, 'stop')
+
     def reset_run(self):
-        self.original_second = self.second = 0
-        self.setting_btn.config(state='normal')
-        self.start_btn.config(state='normal')
-        self.refresh_label_text()
-        self.reset_label_text()
-
-    def refresh_setting_text(self):
-        minute = self.second // 60
-        if self.second % 60 != 0:
-            minute += 1
-        self.setting_btn.config(text="倒计时: " + str(minute) + " 分钟")
-
-    def refresh_label_text(self):
-        self.second_label.config(text=convert_format_second(self.second))
-
-    def reset_label_text(self):
-        self.setting_btn.config(text='设置间隔时间')
+        refresh_gui(self, 'reset')
 
     def start(self):
         threading.Thread(target=self.icon.run, daemon=True).start()
@@ -173,6 +133,9 @@ class GUI:
 
     def hide_window(self):
         self.root.withdraw()
+
+    def reset_show_popup(self):
+        print(22)
 
 
 if __name__ == '__main__':
