@@ -106,7 +106,7 @@ def setting_run(app: Water):
     dialog_askinteger(app)  # 设置间隔时间
     refresh_setting_btn_text(app)  # 显示间隔时间
     refresh_second_text(app)  # 显示秒数
-    if app.second is not None and app.original_second is not None:
+    if app.second is not None and app.original_second is not None and not app.is_run:
         app.start_btn.config(state='normal')
 
 
