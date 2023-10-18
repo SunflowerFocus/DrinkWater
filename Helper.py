@@ -64,11 +64,14 @@ def convert_format_second(second):
 
 
 def dialog_askinteger(app: Water):
+    initial_value = None
+    if app.original_second is not None:
+        initial_value = app.original_second // 60
     minute_value = tk.simpledialog.askinteger(
         title='喝水',
         prompt='间隔时长(分钟)',
         parent=app.root,
-        initialvalue=app.original_second,
+        initialvalue=initial_value,
         minvalue=0,
         maxvalue=480
     )
